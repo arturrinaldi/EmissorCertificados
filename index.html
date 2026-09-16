@@ -207,7 +207,7 @@
                     
                     <div class="step-container">
                         <h3 class="step-title"><span class="step-badge">1</span> Selecione o Certificado</h3>
-                        <p class="text-muted mb-4">Escolha o modelo de certificado `.docx` que deseja utilizar. Ele deve conter os dados faltantes marcados entre <strong>«</strong> e <strong>»</strong> (ex: «Nome»).</p>
+                        <p class="text-muted mb-4">Escolha na lista abaixo qual certificado você deseja emitir.</p>
                         
                         <div class="input-group input-group-lg">
                             <span class="input-group-text bg-light"><i class="bi bi-file-earmark-word text-primary"></i></span>
@@ -219,17 +219,17 @@
 
                     <div class="step-container" id="step2" style="display: none;">
                         <h3 class="step-title"><span class="step-badge">2</span> Preencha os Dados</h3>
-                        <p class="text-muted mb-4">Selecione abaixo como deseja enviar os nomes e dados para a emissão em lote:</p>
+                        <p class="text-muted mb-4">Como você prefere informar os dados das pessoas para a emissão?</p>
                         
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                           <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel-pane" type="button" role="tab" aria-controls="excel-pane" aria-selected="true">
-                                <i class="bi bi-file-earmark-excel"></i> Enviar Lista do Excel
+                                <i class="bi bi-file-earmark-excel"></i> Enviar Planilha
                             </button>
                           </li>
                           <li class="nav-item" role="presentation">
                             <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="false">
-                                <i class="bi bi-keyboard"></i> Preencher no Site
+                                <i class="bi bi-keyboard"></i> Digitar no Site
                             </button>
                           </li>
                         </ul>
@@ -240,7 +240,7 @@
                               <div class="row align-items-center mb-4">
                                   <div class="col-md-7">
                                     <h5><strong>Passo 2.1:</strong> Baixe o modelo</h3>
-                                    <p class="text-muted">Baixe uma planilha vazia que já contém as colunas certas do certificado escolhido.</p>
+                                    <p class="text-muted">Baixe a planilha contendo as colunas exatas para este certificado.</p>
                                   </div>
                                   <div class="col-md-5 text-md-end">
                                     <button type="button" id="downloadTemplateBtn" class="btn btn-outline-primary">
@@ -250,8 +250,8 @@
                               </div>
                               <hr class="mb-4">
                               <div class="mb-3">
-                                  <h5><strong>Passo 2.2:</strong> Faça o upload</h3>
-                                  <p class="text-muted">Após preencher a planilha no Excel, faça o upload do arquivo preenchido aqui:</p>
+                                  <h5><strong>Passo 2.2:</strong> Faça o envio</h3>
+                                  <p class="text-muted">Após preencher a planilha salva no seu computador, envie o arquivo aqui:</p>
                                   <input class="form-control form-control-lg" type="file" name="excel_file" id="excelFile" accept=".xlsx,.xls">
                               </div>
                           </div>
@@ -430,7 +430,7 @@
         // 4. Download Excel
         downloadTemplateBtn.addEventListener('click', () => {
             if(currentPlaceholders.length === 0) {
-                alert("Nenhuma tag «» encontrada no documento.");
+                alert("Nenhum campo para preencher foi encontrado neste certificado.");
                 return;
             }
             const ws = XLSX.utils.aoa_to_sheet([currentPlaceholders]);
@@ -524,7 +524,7 @@
                 
             } catch(err) {
                 console.error(err);
-                alert("Erro ao preencher e gerar os certificados. Verifique se o documento possui marcações válidas.");
+                alert("Erro ao gerar os certificados. Tente novamente ou contate o suporte.");
             }
 
             generateBtn.style.display = 'block';
