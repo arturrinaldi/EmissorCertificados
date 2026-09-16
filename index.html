@@ -130,7 +130,10 @@
 
             try {
                 // Baixa o docx
-                const response = await fetch(`certificados/${filename}`);
+                const response = await fetch(`certificados/${encodeURIComponent(filename)}`);
+                if (!response.ok) {
+                    throw new Error(`Falha ao baixar o arquivo. Status: ${response.status}`);
+                }
                 const arrayBuffer = await response.arrayBuffer();
                 currentTemplateBuffer = arrayBuffer;
 
@@ -153,7 +156,7 @@
                 buildManualTable();
             } catch (err) {
                 console.error(err);
-                alert("Erro ao processar o certificado selecionado.");
+                alert("Erro ao processar o certificado selecionado: " + err.message);
             }
         });
 
