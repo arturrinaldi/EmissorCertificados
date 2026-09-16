@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Certificados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .step-container { margin-bottom: 2rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 0.5rem; background-color: #f8f9fa; }
+    </style>
+</head>
+<body class="container py-4">
+    <h1 class="mb-4 text-center">Emissor de Certificados</h1>
+    
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <form action="/generate" method="POST" enctype="multipart/form-data" id="mainForm">
+                
+                <div class="step-container">
+                    <h3>1. Selecione o Certificado</h3>
+                    <p class="text-muted">Escolha o modelo de certificado `.docx` que deseja utilizar. Ele deve conter os dados faltantes marcados entre « e » (ex: «Nome»).</p>
+                    <select name="certificate" id="certificateSelect" class="form-select mb-3" required>
+                        <option value="">-- Selecione um modelo --</option>
+                        {% for file in files %}
+                            <option value="{{ file }}">{{ file }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="step-container" id="step2" style="display: none;">
+                    <h3>2. Preencha os Dados</h3>
+                    <p class="text-muted">Selecione abaixo como deseja enviar os nomes e dados para emissão:</p>
+                    
+                    <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel-pane" type="button" role="tab" aria-controls="excel-pane" aria-selected="true">Lista do Excel</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="false">Preencher no Site</button>
+                      </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade show active" id="excel-pane" role="tabpanel" aria-labelledby="excel-tab" tabindex="0">
+                          <p><strong>Passo 2.1:</strong> Baixe o template vazio com as colunas certas do certificado:</p>
+                          <p><a href="#" id="downloadTemplateBtn" class="btn btn-outline-primary btn-sm">Baixar Planilha Modelo (Excel)</a></p>
+                          <br>
+                          <p><strong>Passo 2.2:</strong> Após preencher a planilha no Excel, faça o upload aqui:</p>
+                          <input class="form-control" type="file" name="excel_file" id="excelFile" accept=".xlsx,.xls">
+                      </div>
+                      
+                      <div class="tab-pane fade" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab" tabindex="0">
+                          <p>Preencha os dados de cada pessoa diretamente aqui no site. Clique em "Adicionar Linha" se houver mais de uma pessoa.</p>
+                          <div class="table-responsive mb-2">
+                              <table class="table table-bordered table-sm" id="manualTable">
+                                  <thead>
+                                      <tr id="manualTableHead"></tr>
+                                  </thead>
+                                  <tbody id="manualTableBody"></tbody>
+                              </table>
+                          </div>
+                          <button type="button" class="btn btn-sm btn-secondary" id="addRowBtn">Adicionar Linha</button>
+                          <input type="hidden" name="manual_data" id="manualDataInput">
+                      </div>
+                    </div>
+                </div>
+
+                <div class="step-container" id="step3" style="display: none;">
+                    <h3>3. Emitir Certificados</h3>
+                    <p class="text-muted">Clique abaixo para gerar os certificados. O download de um arquivo .zip com todos os certificados iniciará automaticamente.</p>
+                    <button type="submit" class="btn btn-success btn-lg w-100" id="generateBtn">Gerar Certificados (.zip)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const certSelect = document.getElementById('certificateSelect');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
+        const tableHead = document.getElementById('manualTableHead');
+        const tableBody = document.getElementById('manualTableBody');
+        let currentPlaceholders = [];
+
+        certSelect.addEventListener('change', async function() {
+            if(this.value) {
+                step2.style.display = 'block';
+                step3.style.display = 'block';
+                downloadTemplateBtn.href = `/download-template?file=${encodeURIComponent(this.value)}`;
+                
+                const response = await fetch(`/api/placeholders?file=${encodeURIComponent(this.value)}`);
+                const data = await response.json();
+                currentPlaceholders = data.placeholders;
+                
+                buildManualTable();
+            } else {
+                step2.style.display = 'none';
+                step3.style.display = 'none';
+            }
+        });
+
+        function buildManualTable() {
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            currentPlaceholders.forEach(p => {
+                const th = document.createElement('th');
+                th.textContent = p;
+                tableHead.appendChild(th);
+            });
+            const thAction = document.createElement('th');
+            thAction.textContent = 'Ação';
+            tableHead.appendChild(thAction);
+
+            addTableRow();
+        }
+
+        function addTableRow() {
+            const tr = document.createElement('tr');
+            currentPlaceholders.forEach(p => {
+                const td = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control form-control-sm dynamic-field';
+                input.dataset.key = p;
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+            const tdAction = document.createElement('td');
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-danger btn-sm';
+            btn.textContent = 'X';
+            btn.onclick = () => tr.remove();
+            tdAction.appendChild(btn);
+            tr.appendChild(tdAction);
+            tableBody.appendChild(tr);
+        }
+
+        document.getElementById('addRowBtn').addEventListener('click', addTableRow);
+
+        document.getElementById('mainForm').addEventListener('submit', function(e) {
+            const isManual = document.querySelector('#manual-tab').classList.contains('active');
+            if(isManual) {
+                const rows = tableBody.querySelectorAll('tr');
+                const data = [];
+                rows.forEach(tr => {
+                    const obj = {};
+                    let hasData = false;
+                    tr.querySelectorAll('.dynamic-field').forEach(input => {
+                        obj[input.dataset.key] = input.value;
+                        if(input.value.trim() !== '') hasData = true;
+                    });
+                    if(hasData) data.push(obj);
+                });
+                
+                if(data.length === 0) {
+                    alert('Preencha ao menos uma linha com dados.');
+                    e.preventDefault();
+                    return;
+                }
+                document.getElementById('manualDataInput').value = JSON.stringify(data);
+                document.getElementById('excelFile').value = ''; 
+            } else {
+                document.getElementById('manualDataInput').value = '';
+                if(!document.getElementById('excelFile').value) {
+                    alert('Selecione o arquivo Excel ou use a aba "Preencher no Site".');
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
