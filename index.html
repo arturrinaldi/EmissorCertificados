@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Certificados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .step-container { margin-bottom: 2rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 0.5rem; background-color: #f8f9fa; }
+    </style>
+</head>
+<body class="container py-4">
+    <h1 class="mb-4 text-center">Emissor de Certificados</h1>
+    
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <form id="mainForm">
+                
+                <div class="step-container">
+                    <h3>1. Selecione o Certificado</h3>
+                    <p class="text-muted">Escolha o modelo de certificado `.docx` que deseja utilizar. Ele deve conter os dados faltantes marcados entre « e » (ex: «Nome»).</p>
+                    <select name="certificate" id="certificateSelect" class="form-select mb-3" required>
+                        <option value="">-- Carregando certificados... --</option>
+                    </select>
+                </div>
+
+                <div class="step-container" id="step2" style="display: none;">
+                    <h3>2. Preencha os Dados</h3>
+                    <p class="text-muted">Selecione abaixo como deseja enviar os nomes e dados para emissão:</p>
+                    
+                    <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel-pane" type="button" role="tab" aria-controls="excel-pane" aria-selected="true">Lista do Excel</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="false">Preencher no Site</button>
+                      </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade show active" id="excel-pane" role="tabpanel" aria-labelledby="excel-tab" tabindex="0">
+                          <p><strong>Passo 2.1:</strong> Baixe o template vazio com as colunas certas do certificado:</p>
+                          <p><button type="button" id="downloadTemplateBtn" class="btn btn-outline-primary btn-sm">Baixar Planilha Modelo (Excel)</button></p>
+                          <br>
+                          <p><strong>Passo 2.2:</strong> Após preencher a planilha no Excel, faça o upload aqui:</p>
+                          <input class="form-control" type="file" name="excel_file" id="excelFile" accept=".xlsx,.xls">
+                      </div>
+                      
+                      <div class="tab-pane fade" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab" tabindex="0">
+                          <p>Preencha os dados de cada pessoa diretamente aqui no site. Clique em "Adicionar Linha" se houver mais de uma pessoa.</p>
+                          <div class="table-responsive mb-2">
+                              <table class="table table-bordered table-sm" id="manualTable">
+                                  <thead>
+                                      <tr id="manualTableHead"></tr>
+                                  </thead>
+                                  <tbody id="manualTableBody"></tbody>
+                              </table>
+                          </div>
+                          <button type="button" class="btn btn-sm btn-secondary" id="addRowBtn">Adicionar Linha</button>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="step-container" id="step3" style="display: none;">
+                    <h3>3. Emitir Certificados</h3>
+                    <p class="text-muted">Clique abaixo para gerar os certificados. O download de um arquivo .zip com todos os certificados iniciará automaticamente.</p>
+                    <button type="submit" class="btn btn-success btn-lg w-100" id="generateBtn">Gerar Certificados (.zip)</button>
+                    <div id="loadingMsg" class="text-center mt-3" style="display: none;">
+                        <strong>Gerando certificados... Por favor, aguarde.</strong>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bibliotecas JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        const certSelect = document.getElementById('certificateSelect');
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
+        const tableHead = document.getElementById('manualTableHead');
+        const tableBody = document.getElementById('manualTableBody');
+        const excelFile = document.getElementById('excelFile');
+        const generateBtn = document.getElementById('generateBtn');
+        const loadingMsg = document.getElementById('loadingMsg');
+
+        let currentPlaceholders = [];
+        let currentTemplateBuffer = null;
+
+        // 1. Carregar a lista de certificados
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Ajuste para pegar do diretório de certificados
+                const response = await fetch('certificados/list.json');
+                const files = await response.json();
+                
+                certSelect.innerHTML = '<option value="">-- Selecione um modelo --</option>';
+                files.forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f;
+                    opt.textContent = f;
+                    certSelect.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Erro ao carregar certificados", error);
+                certSelect.innerHTML = '<option value="">Erro ao carregar lista de certificados.</option>';
+            }
+        });
+
+        // 2. Quando seleciona um certificado, baixar o .docx e extrair as tags
+        certSelect.addEventListener('change', async function() {
+            const filename = this.value;
+            if(!filename) {
+                step2.style.display = 'none';
+                step3.style.display = 'none';
+                return;
+            }
+
+            step2.style.display = 'block';
+            step3.style.display = 'block';
+            currentPlaceholders = [];
+            currentTemplateBuffer = null;
+
+            try {
+                // Baixa o docx
+                const response = await fetch(`certificados/${filename}`);
+                const arrayBuffer = await response.arrayBuffer();
+                currentTemplateBuffer = arrayBuffer;
+
+                // Extrair as tags
+                const zip = new PizZip(arrayBuffer);
+                let docXml = zip.file("word/document.xml").asText();
+                
+                // Remove XML tags para achar o texto puro e aplicar regex
+                let pureText = docXml.replace(/<[^>]+>/g, '');
+                
+                // Encontrar todas as tags que começam com « e terminam com »
+                const regex = /«(.*?)»/g;
+                let match;
+                const placeholdersSet = new Set();
+                while ((match = regex.exec(pureText)) !== null) {
+                    placeholdersSet.add(match[1]);
+                }
+                currentPlaceholders = Array.from(placeholdersSet);
+                
+                buildManualTable();
+            } catch (err) {
+                console.error(err);
+                alert("Erro ao processar o certificado selecionado.");
+            }
+        });
+
+        // 3. Montar tabela manual
+        function buildManualTable() {
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            currentPlaceholders.forEach(p => {
+                const th = document.createElement('th');
+                th.textContent = p;
+                tableHead.appendChild(th);
+            });
+            const thAction = document.createElement('th');
+            thAction.textContent = 'Ação';
+            tableHead.appendChild(thAction);
+
+            addTableRow();
+        }
+
+        function addTableRow() {
+            const tr = document.createElement('tr');
+            currentPlaceholders.forEach(p => {
+                const td = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control form-control-sm dynamic-field';
+                input.dataset.key = p;
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+            const tdAction = document.createElement('td');
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-danger btn-sm';
+            btn.textContent = 'X';
+            btn.onclick = () => tr.remove();
+            tdAction.appendChild(btn);
+            tr.appendChild(tdAction);
+            tableBody.appendChild(tr);
+        }
+
+        document.getElementById('addRowBtn').addEventListener('click', addTableRow);
+
+        // 4. Download Template Excel
+        downloadTemplateBtn.addEventListener('click', () => {
+            if(currentPlaceholders.length === 0) {
+                alert("Nenhuma tag «» encontrada no documento.");
+                return;
+            }
+            // Criar workbook e worksheet
+            const ws = XLSX.utils.aoa_to_sheet([currentPlaceholders]);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Template");
+            
+            const certName = certSelect.value.replace('.docx', '');
+            XLSX.writeFile(wb, `Template_${certName}.xlsx`);
+        });
+
+        // 5. Gerar Certificados
+        document.getElementById('mainForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const isManual = document.querySelector('#manual-tab').classList.contains('active');
+            let dataList = [];
+
+            if (isManual) {
+                const rows = tableBody.querySelectorAll('tr');
+                rows.forEach(tr => {
+                    const obj = {};
+                    let hasData = false;
+                    tr.querySelectorAll('.dynamic-field').forEach(input => {
+                        obj[input.dataset.key] = input.value;
+                        if(input.value.trim() !== '') hasData = true;
+                    });
+                    if(hasData) dataList.push(obj);
+                });
+                
+                if(dataList.length === 0) {
+                    alert('Preencha ao menos uma linha com dados na tabela.');
+                    return;
+                }
+            } else {
+                if(!excelFile.files[0]) {
+                    alert('Selecione o arquivo Excel ou use a aba "Preencher no Site".');
+                    return;
+                }
+                // Ler Excel
+                try {
+                    dataList = await readExcelFile(excelFile.files[0]);
+                } catch(err) {
+                    console.error(err);
+                    alert("Erro ao ler o Excel.");
+                    return;
+                }
+            }
+
+            if(dataList.length === 0) {
+                alert('Nenhum dado encontrado para gerar certificados.');
+                return;
+            }
+
+            // Iniciar geração do ZIP
+            generateBtn.disabled = true;
+            loadingMsg.style.display = 'block';
+
+            try {
+                const outZip = new PizZip();
+                
+                for (let i = 0; i < dataList.length; i++) {
+                    const record = dataList[i];
+                    
+                    // Copiar o buffer original para PizZip
+                    const zip = new PizZip(currentTemplateBuffer);
+                    
+                    // Configurar docxtemplater com os delimitadores « »
+                    const doc = new window.docxtemplater(zip, {
+                        delimiters: {start: '«', end: '»'},
+                        paragraphLoop: true,
+                        linebreaks: true,
+                        nullGetter: function() { return ""; } // Campos em branco não darão erro
+                    });
+                    
+                    doc.render(record);
+                    
+                    const outBuffer = doc.getZip().generate({
+                        type: "arraybuffer",
+                        compression: "DEFLATE"
+                    });
+                    
+                    // Definir o nome de saída
+                    let outName = `Certificado_${i+1}.docx`;
+                    for(let k in record) {
+                        if (k.toLowerCase().includes('nome') && record[k]) {
+                            // Limpar nome para arquivo
+                            let safeName = String(record[k]).replace(/[^a-zA-Z0-9 ]/g, "").trim();
+                            if(safeName) outName = `Certificado_${safeName}.docx`;
+                            break;
+                        }
+                    }
+                    
+                    outZip.file(outName, outBuffer);
+                }
+
+                // Gerar ZIP final e baixar
+                const finalZipBlob = outZip.generate({type: "blob", compression: "DEFLATE"});
+                saveAs(finalZipBlob, "Certificados_Gerados.zip");
+                
+            } catch(err) {
+                console.error(err);
+                alert("Erro ao preencher e gerar os certificados. Verifique se o documento possui marcações válidas.");
+            }
+
+            generateBtn.disabled = false;
+            loadingMsg.style.display = 'none';
+        });
+
+        // Auxiliar para ler Excel com promise
+        function readExcelFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const firstSheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[firstSheetName];
+                        const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
+                        resolve(json);
+                    } catch(err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+    </script>
+</body>
+</html>
