@@ -4,72 +4,295 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Certificados</title>
+    <!-- Fontes e Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
     <style>
-        .step-container { margin-bottom: 2rem; padding: 1.5rem; border: 1px solid #dee2e6; border-radius: 0.5rem; background-color: #f8f9fa; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f0f2f5; 
+            color: #333; 
+            padding-bottom: 4rem;
+        }
+        
+        .app-header { 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            color: white; 
+            padding: 3rem 0; 
+            text-align: center; 
+            margin-bottom: 3rem; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        
+        .app-header h1 { 
+            font-weight: 600; 
+            letter-spacing: 1px;
+            margin: 0; 
+        }
+
+        .app-header p {
+            opacity: 0.9;
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .step-container { 
+            background: #ffffff; 
+            padding: 2.5rem; 
+            border-radius: 16px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04); 
+            margin-bottom: 2rem; 
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease; 
+        }
+        
+        .step-container:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 12px 35px rgba(0,0,0,0.06); 
+        }
+
+        h3.step-title { 
+            font-weight: 600; 
+            color: #1e3c72; 
+            margin-bottom: 1.5rem; 
+            font-size: 1.5rem; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-badge {
+            background-color: #1e3c72;
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 1.1rem;
+        }
+
+        .form-select, .form-control {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ced4da;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: #2a5298;
+            box-shadow: 0 0 0 0.25rem rgba(42, 82, 152, 0.25);
+        }
+        
+        .btn-success-gradient { 
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
+            border: none; 
+            font-weight: 600; 
+            padding: 1rem; 
+            font-size: 1.2rem; 
+            border-radius: 50px; 
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
+        }
+        
+        .btn-success-gradient:hover { 
+            background: linear-gradient(135deg, #0f857b 0%, #2bd66b 100%); 
+            transform: translateY(-2px); 
+            color: white;
+            box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+        }
+
+        /* Estilos da aba */
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 2rem;
+        }
+
+        .nav-tabs .nav-link {
+            color: #6c757d;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            position: relative;
+            background: transparent;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #2a5298;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #2a5298;
+            background: transparent;
+        }
+
+        .nav-tabs .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #2a5298;
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Estilos da Tabela Manual (Melhoria dos campos pequenos) */
+        .table-responsive { 
+            border-radius: 12px; 
+            border: 1px solid #dee2e6; 
+            background: #fff;
+            overflow-x: auto; 
+            margin-bottom: 1.5rem; 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.01);
+        }
+
+        .table { margin-bottom: 0; vertical-align: middle; }
+        .table th {
+            background-color: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            padding: 1rem;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+        
+        .table td {
+            padding: 0.75rem 1rem;
+        }
+
+        .dynamic-field { 
+            /* Esta linha garante que os inputs não fiquem exprimidos */
+            min-width: 250px; 
+            padding: 0.6rem 1rem; 
+            border-radius: 8px; 
+            font-size: 1rem;
+        }
+
+        .btn-outline-primary {
+            border-width: 2px;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
     </style>
 </head>
-<body class="container py-4">
-    <h1 class="mb-4 text-center">Emissor de Certificados</h1>
+<body>
     
-    <div class="row">
-        <div class="col-md-8 mx-auto">
-            <form id="mainForm">
-                
-                <div class="step-container">
-                    <h3>1. Selecione o Certificado</h3>
-                    <p class="text-muted">Escolha o modelo de certificado `.docx` que deseja utilizar. Ele deve conter os dados faltantes marcados entre « e » (ex: «Nome»).</p>
-                    <select name="certificate" id="certificateSelect" class="form-select mb-3" required>
-                        <option value="">-- Carregando certificados... --</option>
-                    </select>
-                </div>
+    <header class="app-header">
+        <div class="container">
+            <h1><i class="bi bi-award-fill"></i> Emissor de Certificados</h1>
+            <p>Geração automatizada, rápida e 100% segura.</p>
+        </div>
+    </header>
 
-                <div class="step-container" id="step2" style="display: none;">
-                    <h3>2. Preencha os Dados</h3>
-                    <p class="text-muted">Selecione abaixo como deseja enviar os nomes e dados para emissão:</p>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-9 mx-auto">
+                <form id="mainForm">
                     
-                    <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
-                      <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel-pane" type="button" role="tab" aria-controls="excel-pane" aria-selected="true">Lista do Excel</button>
-                      </li>
-                      <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="false">Preencher no Site</button>
-                      </li>
-                    </ul>
-                    
-                    <div class="tab-content" id="myTabContent">
-                      <div class="tab-pane fade show active" id="excel-pane" role="tabpanel" aria-labelledby="excel-tab" tabindex="0">
-                          <p><strong>Passo 2.1:</strong> Baixe o template vazio com as colunas certas do certificado:</p>
-                          <p><button type="button" id="downloadTemplateBtn" class="btn btn-outline-primary btn-sm">Baixar Planilha Modelo (Excel)</button></p>
-                          <br>
-                          <p><strong>Passo 2.2:</strong> Após preencher a planilha no Excel, faça o upload aqui:</p>
-                          <input class="form-control" type="file" name="excel_file" id="excelFile" accept=".xlsx,.xls">
-                      </div>
-                      
-                      <div class="tab-pane fade" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab" tabindex="0">
-                          <p>Preencha os dados de cada pessoa diretamente aqui no site. Clique em "Adicionar Linha" se houver mais de uma pessoa.</p>
-                          <div class="table-responsive mb-2">
-                              <table class="table table-bordered table-sm" id="manualTable">
-                                  <thead>
-                                      <tr id="manualTableHead"></tr>
-                                  </thead>
-                                  <tbody id="manualTableBody"></tbody>
-                              </table>
+                    <div class="step-container">
+                        <h3 class="step-title"><span class="step-badge">1</span> Selecione o Certificado</h3>
+                        <p class="text-muted mb-4">Escolha o modelo de certificado `.docx` que deseja utilizar. Ele deve conter os dados faltantes marcados entre <strong>«</strong> e <strong>»</strong> (ex: «Nome»).</p>
+                        
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-light"><i class="bi bi-file-earmark-word text-primary"></i></span>
+                            <select name="certificate" id="certificateSelect" class="form-select" required>
+                                <option value="">-- Carregando certificados... --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="step-container" id="step2" style="display: none;">
+                        <h3 class="step-title"><span class="step-badge">2</span> Preencha os Dados</h3>
+                        <p class="text-muted mb-4">Selecione abaixo como deseja enviar os nomes e dados para a emissão em lote:</p>
+                        
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                          <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel-pane" type="button" role="tab" aria-controls="excel-pane" aria-selected="true">
+                                <i class="bi bi-file-earmark-excel"></i> Enviar Lista do Excel
+                            </button>
+                          </li>
+                          <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="false">
+                                <i class="bi bi-keyboard"></i> Preencher no Site
+                            </button>
+                          </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="myTabContent">
+                          <!-- Aba Excel -->
+                          <div class="tab-pane fade show active" id="excel-pane" role="tabpanel" aria-labelledby="excel-tab" tabindex="0">
+                              <div class="row align-items-center mb-4">
+                                  <div class="col-md-7">
+                                    <h5><strong>Passo 2.1:</strong> Baixe o modelo</h3>
+                                    <p class="text-muted">Baixe uma planilha vazia que já contém as colunas certas do certificado escolhido.</p>
+                                  </div>
+                                  <div class="col-md-5 text-md-end">
+                                    <button type="button" id="downloadTemplateBtn" class="btn btn-outline-primary">
+                                        <i class="bi bi-cloud-arrow-down"></i> Baixar Planilha
+                                    </button>
+                                  </div>
+                              </div>
+                              <hr class="mb-4">
+                              <div class="mb-3">
+                                  <h5><strong>Passo 2.2:</strong> Faça o upload</h3>
+                                  <p class="text-muted">Após preencher a planilha no Excel, faça o upload do arquivo preenchido aqui:</p>
+                                  <input class="form-control form-control-lg" type="file" name="excel_file" id="excelFile" accept=".xlsx,.xls">
+                              </div>
                           </div>
-                          <button type="button" class="btn btn-sm btn-secondary" id="addRowBtn">Adicionar Linha</button>
-                      </div>
+                          
+                          <!-- Aba Manual -->
+                          <div class="tab-pane fade" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab" tabindex="0">
+                              <p class="mb-3">Preencha os dados de cada pessoa diretamente aqui no site. A tabela expandirá na horizontal se houver muitas colunas.</p>
+                              
+                              <div class="table-responsive mb-4">
+                                  <table class="table table-hover" id="manualTable">
+                                      <thead>
+                                          <tr id="manualTableHead"></tr>
+                                      </thead>
+                                      <tbody id="manualTableBody"></tbody>
+                                  </table>
+                              </div>
+                              
+                              <button type="button" class="btn btn-secondary" id="addRowBtn">
+                                  <i class="bi bi-plus-circle"></i> Adicionar Mais Uma Linha
+                              </button>
+                          </div>
+                        </div>
                     </div>
-                </div>
 
-                <div class="step-container" id="step3" style="display: none;">
-                    <h3>3. Emitir Certificados</h3>
-                    <p class="text-muted">Clique abaixo para gerar os certificados. O download de um arquivo .zip com todos os certificados iniciará automaticamente.</p>
-                    <button type="submit" class="btn btn-success btn-lg w-100" id="generateBtn">Gerar Certificados (.zip)</button>
-                    <div id="loadingMsg" class="text-center mt-3" style="display: none;">
-                        <strong>Gerando certificados... Por favor, aguarde.</strong>
+                    <div class="step-container" id="step3" style="display: none;">
+                        <h3 class="step-title"><span class="step-badge">3</span> Finalizar</h3>
+                        <p class="text-muted mb-4">Tudo pronto! Clique no botão abaixo para gerar seus certificados. Um arquivo `.zip` será baixado com todos os documentos prontos e renomeados.</p>
+                        
+                        <button type="submit" class="btn btn-success-gradient w-100" id="generateBtn">
+                            <i class="bi bi-lightning-charge-fill"></i> GERAR CERTIFICADOS
+                        </button>
+                        
+                        <div id="loadingMsg" class="text-center mt-4" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <h5 class="mt-2 text-primary">Processando os arquivos... Por favor, aguarde.</h5>
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -94,14 +317,13 @@
         let currentPlaceholders = [];
         let currentTemplateBuffer = null;
 
-        // 1. Carregar a lista de certificados
+        // 1. Carregar a lista
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                // Ajuste para pegar do diretório de certificados
                 const response = await fetch('certificados/list.json');
                 const files = await response.json();
                 
-                certSelect.innerHTML = '<option value="">-- Selecione um modelo --</option>';
+                certSelect.innerHTML = '<option value="">-- Selecione o documento na lista --</option>';
                 files.forEach(f => {
                     const opt = document.createElement('option');
                     opt.value = f;
@@ -109,12 +331,12 @@
                     certSelect.appendChild(opt);
                 });
             } catch (error) {
-                console.error("Erro ao carregar certificados", error);
+                console.error("Erro", error);
                 certSelect.innerHTML = '<option value="">Erro ao carregar lista de certificados.</option>';
             }
         });
 
-        // 2. Quando seleciona um certificado, baixar o .docx e extrair as tags
+        // 2. Extrair Tags
         certSelect.addEventListener('change', async function() {
             const filename = this.value;
             if(!filename) {
@@ -129,7 +351,6 @@
             currentTemplateBuffer = null;
 
             try {
-                // Baixa o docx
                 const response = await fetch(`certificados/${encodeURIComponent(filename)}`);
                 if (!response.ok) {
                     throw new Error(`Falha ao baixar o arquivo. Status: ${response.status}`);
@@ -137,14 +358,10 @@
                 const arrayBuffer = await response.arrayBuffer();
                 currentTemplateBuffer = arrayBuffer;
 
-                // Extrair as tags
                 const zip = new PizZip(arrayBuffer);
                 let docXml = zip.file("word/document.xml").asText();
-                
-                // Remove XML tags para achar o texto puro e aplicar regex
                 let pureText = docXml.replace(/<[^>]+>/g, '');
                 
-                // Encontrar todas as tags que começam com « e terminam com »
                 const regex = /«(.*?)»/g;
                 let match;
                 const placeholdersSet = new Set();
@@ -160,7 +377,7 @@
             }
         });
 
-        // 3. Montar tabela manual
+        // 3. Montar Tabela Manual
         function buildManualTable() {
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
@@ -171,7 +388,7 @@
                 tableHead.appendChild(th);
             });
             const thAction = document.createElement('th');
-            thAction.textContent = 'Ação';
+            thAction.textContent = '';
             tableHead.appendChild(thAction);
 
             addTableRow();
@@ -183,17 +400,26 @@
                 const td = document.createElement('td');
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.className = 'form-control form-control-sm dynamic-field';
+                input.className = 'form-control dynamic-field'; // Removido form-control-sm
                 input.dataset.key = p;
+                input.placeholder = `Digitar ${p}...`;
                 td.appendChild(input);
                 tr.appendChild(td);
             });
             const tdAction = document.createElement('td');
+            tdAction.className = 'text-center align-middle';
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'btn btn-danger btn-sm';
-            btn.textContent = 'X';
-            btn.onclick = () => tr.remove();
+            btn.className = 'btn btn-outline-danger';
+            btn.innerHTML = '<i class="bi bi-trash"></i>';
+            btn.title = 'Remover linha';
+            btn.onclick = () => {
+                if(tableBody.querySelectorAll('tr').length > 1) {
+                    tr.remove();
+                } else {
+                    alert('Você deve manter pelo menos uma linha.');
+                }
+            };
             tdAction.appendChild(btn);
             tr.appendChild(tdAction);
             tableBody.appendChild(tr);
@@ -201,22 +427,20 @@
 
         document.getElementById('addRowBtn').addEventListener('click', addTableRow);
 
-        // 4. Download Template Excel
+        // 4. Download Excel
         downloadTemplateBtn.addEventListener('click', () => {
             if(currentPlaceholders.length === 0) {
                 alert("Nenhuma tag «» encontrada no documento.");
                 return;
             }
-            // Criar workbook e worksheet
             const ws = XLSX.utils.aoa_to_sheet([currentPlaceholders]);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Template");
-            
             const certName = certSelect.value.replace('.docx', '');
             XLSX.writeFile(wb, `Template_${certName}.xlsx`);
         });
 
-        // 5. Gerar Certificados
+        // 5. Gerar Zip
         document.getElementById('mainForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const isManual = document.querySelector('#manual-tab').classList.contains('active');
@@ -243,7 +467,6 @@
                     alert('Selecione o arquivo Excel ou use a aba "Preencher no Site".');
                     return;
                 }
-                // Ler Excel
                 try {
                     dataList = await readExcelFile(excelFile.files[0]);
                 } catch(err) {
@@ -258,39 +481,35 @@
                 return;
             }
 
-            // Iniciar geração do ZIP
-            generateBtn.disabled = true;
+            generateBtn.style.display = 'none';
             loadingMsg.style.display = 'block';
 
+            // Pequeno delay para garantir que a UI atualize o botão de loading
+            setTimeout(() => processCertificates(dataList), 100);
+        });
+
+        function processCertificates(dataList) {
             try {
                 const outZip = new PizZip();
                 
                 for (let i = 0; i < dataList.length; i++) {
                     const record = dataList[i];
-                    
-                    // Copiar o buffer original para PizZip
                     const zip = new PizZip(currentTemplateBuffer);
                     
-                    // Configurar docxtemplater com os delimitadores « »
                     const doc = new window.docxtemplater(zip, {
                         delimiters: {start: '«', end: '»'},
                         paragraphLoop: true,
                         linebreaks: true,
-                        nullGetter: function() { return ""; } // Campos em branco não darão erro
+                        nullGetter: function() { return ""; }
                     });
                     
                     doc.render(record);
                     
-                    const outBuffer = doc.getZip().generate({
-                        type: "arraybuffer",
-                        compression: "DEFLATE"
-                    });
+                    const outBuffer = doc.getZip().generate({ type: "arraybuffer", compression: "DEFLATE" });
                     
-                    // Definir o nome de saída
                     let outName = `Certificado_${i+1}.docx`;
                     for(let k in record) {
                         if (k.toLowerCase().includes('nome') && record[k]) {
-                            // Limpar nome para arquivo
                             let safeName = String(record[k]).replace(/[^a-zA-Z0-9 ]/g, "").trim();
                             if(safeName) outName = `Certificado_${safeName}.docx`;
                             break;
@@ -300,7 +519,6 @@
                     outZip.file(outName, outBuffer);
                 }
 
-                // Gerar ZIP final e baixar
                 const finalZipBlob = outZip.generate({type: "blob", compression: "DEFLATE"});
                 saveAs(finalZipBlob, "Certificados_Gerados.zip");
                 
@@ -309,11 +527,10 @@
                 alert("Erro ao preencher e gerar os certificados. Verifique se o documento possui marcações válidas.");
             }
 
-            generateBtn.disabled = false;
+            generateBtn.style.display = 'block';
             loadingMsg.style.display = 'none';
-        });
+        }
 
-        // Auxiliar para ler Excel com promise
         function readExcelFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
