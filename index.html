@@ -674,6 +674,7 @@
     <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <script>
@@ -840,13 +841,75 @@
             }
         });
 
-        /* ── Download template ── */
-        downloadBtn.addEventListener('click', () => {
+        /* ── Download template (ExcelJS — estilizado) ── */
+        downloadBtn.addEventListener('click', async () => {
             if (!placeholders.length) { alert('Nenhum campo encontrado neste certificado.'); return; }
-            const ws   = XLSX.utils.aoa_to_sheet([placeholders.map(label)]);
-            const wb   = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Template');
-            XLSX.writeFile(wb, `Template_${certSelect.value.replace(/\.docx$/i, '')}.xlsx`);
+
+            const wb = new ExcelJS.Workbook();
+            wb.creator = 'Emissor de Certificados';
+            const ws = wb.addWorksheet('Dados');
+
+            // Define as colunas com largura automática baseada no label
+            ws.columns = placeholders.map(p => ({
+                header : label(p),
+                key    : p,
+                width  : Math.max(label(p).length + 6, 22)
+            }));
+
+            // Estiliza a linha de cabeçalho (linha 1)
+            ws.getRow(1).eachCell(cell => {
+                cell.font = {
+                    name  : 'Calibri',
+                    bold  : true,
+                    color : { argb: 'FFFFFFFF' },
+                    size  : 12
+                };
+                cell.fill = {
+                    type    : 'pattern',
+                    pattern : 'solid',
+                    fgColor : { argb: 'FF005CA9' }   // azul da empresa
+                };
+                cell.alignment = {
+                    vertical   : 'middle',
+                    horizontal : 'center',
+                    wrapText   : false
+                };
+                cell.border = {
+                    bottom: { style: 'medium', color: { argb: 'FFA8CE3B' } }  // borda verde
+                };
+            });
+
+            // Altura do cabeçalho
+            ws.getRow(1).height = 28;
+
+            // Adiciona 5 linhas de exemplo em branco com zebra leve
+            for (let i = 2; i <= 6; i++) {
+                const row = ws.getRow(i);
+                placeholders.forEach((p, ci) => {
+                    const cell = row.getCell(ci + 1);
+                    cell.value = '';
+                    if (i % 2 === 0) {
+                        cell.fill = {
+                            type: 'pattern', pattern: 'solid',
+                            fgColor: { argb: 'FFF0F6FC' }
+                        };
+                    }
+                    cell.alignment = { vertical: 'middle' };
+                    cell.border = {
+                        bottom: { style: 'hair', color: { argb: 'FFD0DDE8' } }
+                    };
+                });
+                row.height = 22;
+            }
+
+            // Congela a linha do cabeçalho
+            ws.views = [{ state: 'frozen', ySplit: 1 }];
+
+            // Gera e baixa
+            const certName = certSelect.value.replace(/\.docx$/i, '');
+            const buf  = await wb.xlsx.writeBuffer();
+            saveAs(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }),
+                   `Template_${certName}.xlsx`);
         });
 
         /* ── Submit ── */
