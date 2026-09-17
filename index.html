@@ -770,13 +770,16 @@
             }
         });
 
+        /* ── Formata label visual: remove underscores ── */
+        function label(p) { return p.replace(/_/g, ' '); }
+
         /* ── Tabela manual ── */
         function buildTable() {
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
             placeholders.forEach(p => {
                 const th = document.createElement('th');
-                th.textContent = p;
+                th.textContent = label(p);
                 tableHead.appendChild(th);
             });
             const thA = document.createElement('th');
@@ -792,8 +795,8 @@
                 const inp = document.createElement('input');
                 inp.type        = 'text';
                 inp.className   = 'data-input';
-                inp.dataset.key = p;
-                inp.placeholder = p;
+                inp.dataset.key = p;          // chave original preservada para o docx
+                inp.placeholder = label(p);   // exibe sem underscore
                 td.appendChild(inp);
                 tr.appendChild(td);
             });
@@ -840,7 +843,7 @@
         /* ── Download template ── */
         downloadBtn.addEventListener('click', () => {
             if (!placeholders.length) { alert('Nenhum campo encontrado neste certificado.'); return; }
-            const ws   = XLSX.utils.aoa_to_sheet([placeholders]);
+            const ws   = XLSX.utils.aoa_to_sheet([placeholders.map(label)]);
             const wb   = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Template');
             XLSX.writeFile(wb, `Template_${certSelect.value.replace(/\.docx$/i, '')}.xlsx`);
