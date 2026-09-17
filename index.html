@@ -3,13 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Certificados</title>
-    <!-- Fontes e Bootstrap -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Emissor de Certificados</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     
     <style>
+        :root {
+            --brand-blue: #005CA9;
+            --brand-green: #A8CE3B;
+            --brand-blue-dark: #004A8A;
+            --brand-blue-light: rgba(0, 92, 169, 0.08);
+        }
+
+        * { box-sizing: border-box; }
+
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #f0f2f5; 
@@ -17,98 +25,160 @@
             padding-bottom: 4rem;
         }
         
+        /* ── Header ── */
         .app-header { 
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
+            background: var(--brand-blue);
             color: white; 
-            padding: 3rem 0; 
+            padding: 2rem 0 2.5rem;
             text-align: center; 
             margin-bottom: 3rem; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 16px rgba(0,92,169,0.25); 
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        /* faixa decorativa verde no topo do header */
+        .app-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: var(--brand-green);
+        }
+
+        .app-header .logo-wrap {
+            background: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            padding: 12px 24px;
+            margin-bottom: 1.2rem;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+
+        .app-header .logo-wrap img {
+            max-height: 60px;
+            width: auto;
+        }
+
         .app-header h1 { 
-            font-weight: 600; 
-            letter-spacing: 1px;
-            margin: 0; 
+            font-weight: 700;
+            font-size: 1.6rem;
+            letter-spacing: 0.5px;
+            margin: 0;
+            opacity: 0.95;
         }
 
         .app-header p {
-            opacity: 0.9;
-            margin-top: 0.5rem;
-            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-top: 0.4rem;
+            font-size: 1rem;
         }
 
+        /* ── Cards ── */
         .step-container { 
             background: #ffffff; 
             padding: 2.5rem; 
             border-radius: 16px; 
-            box-shadow: 0 8px 30px rgba(0,0,0,0.04); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
             margin-bottom: 2rem; 
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease; 
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: box-shadow 0.2s ease;
         }
         
         .step-container:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 12px 35px rgba(0,0,0,0.06); 
+            box-shadow: 0 8px 28px rgba(0,92,169,0.1); 
         }
 
         h3.step-title { 
-            font-weight: 600; 
-            color: #1e3c72; 
-            margin-bottom: 1.5rem; 
-            font-size: 1.5rem; 
+            font-weight: 700; 
+            color: var(--brand-blue); 
+            margin-bottom: 1rem; 
+            font-size: 1.3rem; 
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .step-badge {
-            background-color: #1e3c72;
+            background-color: var(--brand-blue);
             color: white;
-            width: 32px;
+            min-width: 32px;
             height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            font-weight: 700;
         }
 
+        /* ── Inputs ── */
         .form-select, .form-control {
             border-radius: 8px;
             padding: 0.75rem 1rem;
-            border: 1px solid #ced4da;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            border: 1.5px solid #dee2e6;
         }
 
         .form-select:focus, .form-control:focus {
-            border-color: #2a5298;
-            box-shadow: 0 0 0 0.25rem rgba(42, 82, 152, 0.25);
-        }
-        
-        .btn-success-gradient { 
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
-            border: none; 
-            font-weight: 600; 
-            padding: 1rem; 
-            font-size: 1.2rem; 
-            border-radius: 50px; 
-            color: white;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(56, 239, 125, 0.3);
-        }
-        
-        .btn-success-gradient:hover { 
-            background: linear-gradient(135deg, #0f857b 0%, #2bd66b 100%); 
-            transform: translateY(-2px); 
-            color: white;
-            box-shadow: 0 6px 20px rgba(56, 239, 125, 0.4);
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 0 0.2rem rgba(0, 92, 169, 0.2);
         }
 
-        /* Estilos da aba */
+        /* FIX: evita que o select se expanda ao passar o mouse */
+        .input-group {
+            width: 100%;
+        }
+        
+        .input-group .form-select {
+            width: 0; /* flex vai cuidar do tamanho */
+            min-width: 0;
+        }
+
+        /* ── Botão principal ── */
+        .btn-brand-primary { 
+            background: var(--brand-blue);
+            border: none; 
+            font-weight: 700; 
+            padding: 1rem 2rem; 
+            font-size: 1.15rem; 
+            border-radius: 50px; 
+            color: white;
+            transition: all 0.25s;
+            box-shadow: 0 4px 14px rgba(0, 92, 169, 0.35);
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-brand-primary:hover { 
+            background: var(--brand-blue-dark);
+            transform: translateY(-2px); 
+            color: white;
+            box-shadow: 0 6px 20px rgba(0, 92, 169, 0.45);
+        }
+
+        .btn-brand-primary:disabled {
+            background: #a0b8d4;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ── Botão outline ── */
+        .btn-outline-primary {
+            border: 2px solid var(--brand-blue);
+            color: var(--brand-blue);
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.6rem 1.4rem;
+        }
+        .btn-outline-primary:hover {
+            background-color: var(--brand-blue);
+            color: white;
+        }
+
+        /* ── Abas ── */
         .nav-tabs {
             border-bottom: 2px solid #e9ecef;
             margin-bottom: 2rem;
@@ -117,77 +187,61 @@
         .nav-tabs .nav-link {
             color: #6c757d;
             border: none;
-            padding: 1rem 1.5rem;
+            padding: 0.85rem 1.4rem;
             font-weight: 600;
             position: relative;
             background: transparent;
         }
 
-        .nav-tabs .nav-link:hover {
-            color: #2a5298;
-        }
+        .nav-tabs .nav-link:hover { color: var(--brand-blue); }
 
-        .nav-tabs .nav-link.active {
-            color: #2a5298;
-            background: transparent;
-        }
+        .nav-tabs .nav-link.active { color: var(--brand-blue); background: transparent; }
 
         .nav-tabs .nav-link.active::after {
             content: '';
             position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-color: #2a5298;
+            bottom: -2px; left: 0; width: 100%; height: 3px;
+            background: var(--brand-green);
             border-radius: 3px 3px 0 0;
         }
 
-        /* Estilos da Tabela Manual (Melhoria dos campos pequenos) */
+        /* ── Tabela manual ── */
         .table-responsive { 
             border-radius: 12px; 
             border: 1px solid #dee2e6; 
-            background: #fff;
             overflow-x: auto; 
             margin-bottom: 1.5rem; 
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.01);
         }
 
         .table { margin-bottom: 0; vertical-align: middle; }
+
         .table th {
-            background-color: #f8f9fa;
-            color: #495057;
-            font-weight: 600;
-            padding: 1rem;
-            border-bottom: 2px solid #dee2e6;
+            background-color: var(--brand-blue-light);
+            color: var(--brand-blue);
+            font-weight: 700;
+            padding: 0.9rem 1rem;
+            border-bottom: 2px solid rgba(0,92,169,0.15);
             white-space: nowrap;
         }
         
-        .table td {
-            padding: 0.75rem 1rem;
-        }
+        .table td { padding: 0.65rem 0.75rem; }
 
         .dynamic-field { 
-            /* Esta linha garante que os inputs não fiquem exprimidos */
-            min-width: 250px; 
+            min-width: 220px; 
             padding: 0.6rem 1rem; 
             border-radius: 8px; 
-            font-size: 1rem;
+            font-size: 0.97rem;
         }
 
-        .btn-outline-primary {
-            border-width: 2px;
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 0.6rem 1.2rem;
-        }
+        /* ── Spinner / loading ── */
+        .spinner-border { color: var(--brand-blue) !important; }
+        #loadingMsg h5 { color: var(--brand-blue); }
 
-        .btn-secondary {
-            background-color: #6c757d;
+        /* ── Divisor ── */
+        .section-divider {
             border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
+            border-top: 2px solid #f0f2f5;
+            margin: 1.5rem 0;
         }
     </style>
 </head>
@@ -195,8 +249,11 @@
     
     <header class="app-header">
         <div class="container">
-            <h1><i class="bi bi-award-fill"></i> Emissor de Certificados</h1>
-            <p>Geração automatizada, rápida e 100% segura.</p>
+            <div class="logo-wrap">
+                <img src="logo.png" alt="Logo da empresa">
+            </div>
+            <h1>Emissor de Certificados</h1>
+            <p>Geração automatizada, rápida e segura.</p>
         </div>
     </header>
 
@@ -205,62 +262,73 @@
             <div class="col-lg-9 mx-auto">
                 <form id="mainForm">
                     
+                    <!-- PASSO 1 -->
                     <div class="step-container">
-                        <h3 class="step-title"><span class="step-badge">1</span> Selecione o Certificado</h3>
+                        <h3 class="step-title">
+                            <span class="step-badge">1</span> Selecione o Certificado
+                        </h3>
                         <p class="text-muted mb-4">Escolha na lista abaixo qual certificado você deseja emitir.</p>
                         
                         <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-light"><i class="bi bi-file-earmark-word text-primary"></i></span>
+                            <span class="input-group-text bg-light">
+                                <i class="bi bi-award" style="color: var(--brand-blue);"></i>
+                            </span>
                             <select name="certificate" id="certificateSelect" class="form-select" required>
-                                <option value="">-- Carregando certificados... --</option>
+                                <option value="">— Carregando certificados... —</option>
                             </select>
                         </div>
                     </div>
 
+                    <!-- PASSO 2 -->
                     <div class="step-container" id="step2" style="display: none;">
-                        <h3 class="step-title"><span class="step-badge">2</span> Preencha os Dados</h3>
+                        <h3 class="step-title">
+                            <span class="step-badge">2</span> Preencha os Dados
+                        </h3>
                         <p class="text-muted mb-4">Como você prefere informar os dados das pessoas para a emissão?</p>
                         
                         <ul class="nav nav-tabs" id="myTab" role="tablist">
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel-pane" type="button" role="tab" aria-controls="excel-pane" aria-selected="true">
+                            <button class="nav-link active" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel-pane" type="button" role="tab" aria-selected="true">
                                 <i class="bi bi-file-earmark-excel"></i> Enviar Planilha
                             </button>
                           </li>
                           <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="false">
+                            <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual-pane" type="button" role="tab" aria-selected="false">
                                 <i class="bi bi-keyboard"></i> Digitar no Site
                             </button>
                           </li>
                         </ul>
                         
                         <div class="tab-content" id="myTabContent">
+
                           <!-- Aba Excel -->
-                          <div class="tab-pane fade show active" id="excel-pane" role="tabpanel" aria-labelledby="excel-tab" tabindex="0">
+                          <div class="tab-pane fade show active" id="excel-pane" role="tabpanel" tabindex="0">
                               <div class="row align-items-center mb-4">
                                   <div class="col-md-7">
-                                    <h5><strong>Passo 2.1:</strong> Baixe o modelo</h3>
-                                    <p class="text-muted">Baixe a planilha contendo as colunas exatas para este certificado.</p>
+                                      <h5 class="mb-1"><strong>Passo 2.1 —</strong> Baixe o modelo</h5>
+                                      <p class="text-muted mb-0">Baixe a planilha com as colunas exatas para este certificado.</p>
                                   </div>
-                                  <div class="col-md-5 text-md-end">
-                                    <button type="button" id="downloadTemplateBtn" class="btn btn-outline-primary">
-                                        <i class="bi bi-cloud-arrow-down"></i> Baixar Planilha
-                                    </button>
+                                  <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                                      <button type="button" id="downloadTemplateBtn" class="btn btn-outline-primary">
+                                          <i class="bi bi-cloud-arrow-down"></i> Baixar Planilha
+                                      </button>
                                   </div>
                               </div>
-                              <hr class="mb-4">
-                              <div class="mb-3">
-                                  <h5><strong>Passo 2.2:</strong> Faça o envio</h3>
-                                  <p class="text-muted">Após preencher a planilha salva no seu computador, envie o arquivo aqui:</p>
+                              
+                              <hr class="section-divider">
+                              
+                              <div class="mb-2">
+                                  <h5 class="mb-1"><strong>Passo 2.2 —</strong> Envie a planilha preenchida</h5>
+                                  <p class="text-muted mb-3">Após preencher a planilha salva no seu computador, envie o arquivo aqui:</p>
                                   <input class="form-control form-control-lg" type="file" name="excel_file" id="excelFile" accept=".xlsx,.xls">
                               </div>
                           </div>
                           
                           <!-- Aba Manual -->
-                          <div class="tab-pane fade" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab" tabindex="0">
-                              <p class="mb-3">Preencha os dados de cada pessoa diretamente aqui no site. A tabela expandirá na horizontal se houver muitas colunas.</p>
+                          <div class="tab-pane fade" id="manual-pane" role="tabpanel" tabindex="0">
+                              <p class="mb-3">Preencha os dados de cada pessoa diretamente aqui. A tabela desliza na horizontal se houver muitas colunas.</p>
                               
-                              <div class="table-responsive mb-4">
+                              <div class="table-responsive mb-3">
                                   <table class="table table-hover" id="manualTable">
                                       <thead>
                                           <tr id="manualTableHead"></tr>
@@ -269,26 +337,29 @@
                                   </table>
                               </div>
                               
-                              <button type="button" class="btn btn-secondary" id="addRowBtn">
-                                  <i class="bi bi-plus-circle"></i> Adicionar Mais Uma Linha
+                              <button type="button" class="btn btn-secondary" id="addRowBtn" style="border-radius:8px; font-weight:600;">
+                                  <i class="bi bi-plus-circle"></i> Adicionar Linha
                               </button>
                           </div>
                         </div>
                     </div>
 
+                    <!-- PASSO 3 -->
                     <div class="step-container" id="step3" style="display: none;">
-                        <h3 class="step-title"><span class="step-badge">3</span> Finalizar</h3>
-                        <p class="text-muted mb-4">Tudo pronto! Clique no botão abaixo para gerar seus certificados. Um arquivo `.zip` será baixado com todos os documentos prontos e renomeados.</p>
+                        <h3 class="step-title">
+                            <span class="step-badge">3</span> Gerar Certificados
+                        </h3>
+                        <p class="text-muted mb-4">Tudo pronto! Clique no botão abaixo — um arquivo `.zip` será baixado com todos os certificados gerados.</p>
                         
-                        <button type="submit" class="btn btn-success-gradient w-100" id="generateBtn">
-                            <i class="bi bi-lightning-charge-fill"></i> GERAR CERTIFICADOS
+                        <button type="submit" class="btn btn-brand-primary w-100" id="generateBtn">
+                            <i class="bi bi-lightning-charge-fill"></i>&nbsp; GERAR CERTIFICADOS
                         </button>
                         
                         <div id="loadingMsg" class="text-center mt-4" style="display: none;">
-                            <div class="spinner-border text-primary" role="status">
+                            <div class="spinner-border" role="status" style="width:2.5rem;height:2.5rem;">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
-                            <h5 class="mt-2 text-primary">Processando os arquivos... Por favor, aguarde.</h5>
+                            <h5 class="mt-3">Processando os arquivos... Por favor, aguarde.</h5>
                         </div>
                     </div>
                 </form>
@@ -296,7 +367,7 @@
         </div>
     </div>
 
-    <!-- Bibliotecas JS -->
+    <!-- JS Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.37.11/docxtemplater.js"></script>
@@ -304,42 +375,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <script>
-        const certSelect = document.getElementById('certificateSelect');
-        const step2 = document.getElementById('step2');
-        const step3 = document.getElementById('step3');
-        const downloadTemplateBtn = document.getElementById('downloadTemplateBtn');
-        const tableHead = document.getElementById('manualTableHead');
-        const tableBody = document.getElementById('manualTableBody');
-        const excelFile = document.getElementById('excelFile');
-        const generateBtn = document.getElementById('generateBtn');
-        const loadingMsg = document.getElementById('loadingMsg');
+        const certSelect       = document.getElementById('certificateSelect');
+        const step2            = document.getElementById('step2');
+        const step3            = document.getElementById('step3');
+        const downloadBtn      = document.getElementById('downloadTemplateBtn');
+        const tableHead        = document.getElementById('manualTableHead');
+        const tableBody        = document.getElementById('manualTableBody');
+        const excelFile        = document.getElementById('excelFile');
+        const generateBtn      = document.getElementById('generateBtn');
+        const loadingMsg       = document.getElementById('loadingMsg');
 
-        let currentPlaceholders = [];
+        let currentPlaceholders   = [];
         let currentTemplateBuffer = null;
 
-        // 1. Carregar a lista
+        // ── 1. Carregar lista de certificados ──
         window.addEventListener('DOMContentLoaded', async () => {
             try {
-                const response = await fetch('certificados/list.json');
-                const files = await response.json();
+                const res   = await fetch('certificados/list.json');
+                const files = await res.json();
                 
-                certSelect.innerHTML = '<option value="">-- Selecione o documento na lista --</option>';
+                certSelect.innerHTML = '<option value="">— Selecione o certificado —</option>';
                 files.forEach(f => {
-                    const opt = document.createElement('option');
-                    opt.value = f;
-                    opt.textContent = f;
+                    const opt      = document.createElement('option');
+                    opt.value      = f;
+                    // Remove a extensão .docx para o usuário final
+                    opt.textContent = f.replace(/\.docx$/i, '');
                     certSelect.appendChild(opt);
                 });
-            } catch (error) {
-                console.error("Erro", error);
-                certSelect.innerHTML = '<option value="">Erro ao carregar lista de certificados.</option>';
+            } catch (e) {
+                console.error(e);
+                certSelect.innerHTML = '<option value="">Erro ao carregar a lista.</option>';
             }
         });
 
-        // 2. Extrair Tags
-        certSelect.addEventListener('change', async function() {
+        // ── 2. Selecionar certificado → extrair tags ──
+        certSelect.addEventListener('change', async function () {
             const filename = this.value;
-            if(!filename) {
+            if (!filename) {
                 step2.style.display = 'none';
                 step3.style.display = 'none';
                 return;
@@ -347,204 +419,174 @@
 
             step2.style.display = 'block';
             step3.style.display = 'block';
-            currentPlaceholders = [];
+            currentPlaceholders   = [];
             currentTemplateBuffer = null;
 
             try {
-                const response = await fetch(`certificados/${encodeURIComponent(filename)}`);
-                if (!response.ok) {
-                    throw new Error(`Falha ao baixar o arquivo. Status: ${response.status}`);
-                }
-                const arrayBuffer = await response.arrayBuffer();
-                currentTemplateBuffer = arrayBuffer;
+                const res = await fetch(`certificados/${encodeURIComponent(filename)}`);
+                if (!res.ok) throw new Error(`Status: ${res.status}`);
+                
+                const buf           = await res.arrayBuffer();
+                currentTemplateBuffer = buf;
 
-                const zip = new PizZip(arrayBuffer);
-                let docXml = zip.file("word/document.xml").asText();
-                let pureText = docXml.replace(/<[^>]+>/g, '');
-                
-                const regex = /«(.*?)»/g;
+                const zip      = new PizZip(buf);
+                const docXml   = zip.file('word/document.xml').asText();
+                const pureText = docXml.replace(/<[^>]+>/g, '');
+                const regex    = /«(.*?)»/g;
                 let match;
-                const placeholdersSet = new Set();
-                while ((match = regex.exec(pureText)) !== null) {
-                    placeholdersSet.add(match[1]);
-                }
-                currentPlaceholders = Array.from(placeholdersSet);
-                
+                const set = new Set();
+                while ((match = regex.exec(pureText)) !== null) set.add(match[1]);
+                currentPlaceholders = Array.from(set);
+
                 buildManualTable();
             } catch (err) {
                 console.error(err);
-                alert("Erro ao processar o certificado selecionado: " + err.message);
+                alert('Não foi possível carregar este certificado. ' + err.message);
             }
         });
 
-        // 3. Montar Tabela Manual
-        function buildManualTable() {
+        // ── 3. Montar tabela manual ──
+        function buildManualTable () {
             tableHead.innerHTML = '';
             tableBody.innerHTML = '';
-            
+
             currentPlaceholders.forEach(p => {
                 const th = document.createElement('th');
                 th.textContent = p;
                 tableHead.appendChild(th);
             });
-            const thAction = document.createElement('th');
-            thAction.textContent = '';
-            tableHead.appendChild(thAction);
+            const thAct = document.createElement('th');
+            thAct.textContent = '';
+            tableHead.appendChild(thAct);
 
             addTableRow();
         }
 
-        function addTableRow() {
+        function addTableRow () {
             const tr = document.createElement('tr');
             currentPlaceholders.forEach(p => {
-                const td = document.createElement('td');
+                const td    = document.createElement('td');
                 const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control dynamic-field'; // Removido form-control-sm
+                input.type        = 'text';
+                input.className   = 'form-control dynamic-field';
                 input.dataset.key = p;
-                input.placeholder = `Digitar ${p}...`;
+                input.placeholder = p;
                 td.appendChild(input);
                 tr.appendChild(td);
             });
-            const tdAction = document.createElement('td');
-            tdAction.className = 'text-center align-middle';
+
+            const tdAct = document.createElement('td');
+            tdAct.className = 'text-center align-middle';
             const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'btn btn-outline-danger';
+            btn.type      = 'button';
+            btn.className = 'btn btn-outline-danger btn-sm';
             btn.innerHTML = '<i class="bi bi-trash"></i>';
-            btn.title = 'Remover linha';
-            btn.onclick = () => {
-                if(tableBody.querySelectorAll('tr').length > 1) {
-                    tr.remove();
-                } else {
-                    alert('Você deve manter pelo menos uma linha.');
-                }
+            btn.title     = 'Remover linha';
+            btn.onclick   = () => {
+                if (tableBody.querySelectorAll('tr').length > 1) tr.remove();
+                else alert('Mantenha pelo menos uma linha.');
             };
-            tdAction.appendChild(btn);
-            tr.appendChild(tdAction);
+            tdAct.appendChild(btn);
+            tr.appendChild(tdAct);
             tableBody.appendChild(tr);
         }
 
         document.getElementById('addRowBtn').addEventListener('click', addTableRow);
 
-        // 4. Download Excel
-        downloadTemplateBtn.addEventListener('click', () => {
-            if(currentPlaceholders.length === 0) {
-                alert("Nenhum campo para preencher foi encontrado neste certificado.");
+        // ── 4. Baixar template Excel ──
+        downloadBtn.addEventListener('click', () => {
+            if (currentPlaceholders.length === 0) {
+                alert('Nenhum campo encontrado neste certificado.');
                 return;
             }
-            const ws = XLSX.utils.aoa_to_sheet([currentPlaceholders]);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Template");
-            const certName = certSelect.value.replace('.docx', '');
-            XLSX.writeFile(wb, `Template_${certName}.xlsx`);
+            const ws   = XLSX.utils.aoa_to_sheet([currentPlaceholders]);
+            const wb   = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Template');
+            const name = certSelect.value.replace(/\.docx$/i, '');
+            XLSX.writeFile(wb, `Template_${name}.xlsx`);
         });
 
-        // 5. Gerar Zip
-        document.getElementById('mainForm').addEventListener('submit', async function(e) {
+        // ── 5. Gerar certificados ──
+        document.getElementById('mainForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+
             const isManual = document.querySelector('#manual-tab').classList.contains('active');
-            let dataList = [];
+            let dataList   = [];
 
             if (isManual) {
-                const rows = tableBody.querySelectorAll('tr');
-                rows.forEach(tr => {
+                tableBody.querySelectorAll('tr').forEach(tr => {
                     const obj = {};
                     let hasData = false;
                     tr.querySelectorAll('.dynamic-field').forEach(input => {
                         obj[input.dataset.key] = input.value;
-                        if(input.value.trim() !== '') hasData = true;
+                        if (input.value.trim()) hasData = true;
                     });
-                    if(hasData) dataList.push(obj);
+                    if (hasData) dataList.push(obj);
                 });
-                
-                if(dataList.length === 0) {
-                    alert('Preencha ao menos uma linha com dados na tabela.');
-                    return;
-                }
+                if (dataList.length === 0) { alert('Preencha ao menos uma linha.'); return; }
             } else {
-                if(!excelFile.files[0]) {
-                    alert('Selecione o arquivo Excel ou use a aba "Preencher no Site".');
-                    return;
-                }
-                try {
-                    dataList = await readExcelFile(excelFile.files[0]);
-                } catch(err) {
-                    console.error(err);
-                    alert("Erro ao ler o Excel.");
-                    return;
-                }
+                if (!excelFile.files[0]) { alert('Selecione a planilha preenchida ou use a aba "Digitar no Site".'); return; }
+                try { dataList = await readExcel(excelFile.files[0]); }
+                catch (err) { alert('Erro ao ler a planilha.'); return; }
             }
 
-            if(dataList.length === 0) {
-                alert('Nenhum dado encontrado para gerar certificados.');
-                return;
-            }
+            if (dataList.length === 0) { alert('Nenhum dado encontrado.'); return; }
 
             generateBtn.style.display = 'none';
-            loadingMsg.style.display = 'block';
+            loadingMsg.style.display  = 'block';
 
-            // Pequeno delay para garantir que a UI atualize o botão de loading
-            setTimeout(() => processCertificates(dataList), 100);
+            setTimeout(() => generate(dataList), 80);
         });
 
-        function processCertificates(dataList) {
+        function generate (dataList) {
             try {
                 const outZip = new PizZip();
-                
-                for (let i = 0; i < dataList.length; i++) {
-                    const record = dataList[i];
+
+                dataList.forEach((record, i) => {
                     const zip = new PizZip(currentTemplateBuffer);
-                    
                     const doc = new window.docxtemplater(zip, {
-                        delimiters: {start: '«', end: '»'},
+                        delimiters : { start: '«', end: '»' },
                         paragraphLoop: true,
-                        linebreaks: true,
-                        nullGetter: function() { return ""; }
+                        linebreaks  : true,
+                        nullGetter  : () => ''
                     });
-                    
                     doc.render(record);
-                    
-                    const outBuffer = doc.getZip().generate({ type: "arraybuffer", compression: "DEFLATE" });
-                    
-                    let outName = `Certificado_${i+1}.docx`;
-                    for(let k in record) {
+
+                    const buf = doc.getZip().generate({ type: 'arraybuffer', compression: 'DEFLATE' });
+
+                    let outName = `Certificado_${i + 1}.docx`;
+                    for (const k in record) {
                         if (k.toLowerCase().includes('nome') && record[k]) {
-                            let safeName = String(record[k]).replace(/[^a-zA-Z0-9 ]/g, "").trim();
-                            if(safeName) outName = `Certificado_${safeName}.docx`;
+                            const safe = String(record[k]).replace(/[^a-zA-Z0-9 ÀÁÂÃÄÅàáâãäåÉÊéêÍíÓÔÕóôõÚúÇç]/g, '').trim();
+                            if (safe) outName = `Certificado_${safe}.docx`;
                             break;
                         }
                     }
-                    
-                    outZip.file(outName, outBuffer);
-                }
+                    outZip.file(outName, buf);
+                });
 
-                const finalZipBlob = outZip.generate({type: "blob", compression: "DEFLATE"});
-                saveAs(finalZipBlob, "Certificados_Gerados.zip");
-                
-            } catch(err) {
+                const blob = outZip.generate({ type: 'blob', compression: 'DEFLATE' });
+                saveAs(blob, 'Certificados_Gerados.zip');
+
+            } catch (err) {
                 console.error(err);
-                alert("Erro ao gerar os certificados. Tente novamente ou contate o suporte.");
+                alert('Erro ao gerar os certificados. Tente novamente ou contate o suporte.');
             }
 
             generateBtn.style.display = 'block';
-            loadingMsg.style.display = 'none';
+            loadingMsg.style.display  = 'none';
         }
 
-        function readExcelFile(file) {
+        function readExcel (file) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
+                const reader  = new FileReader();
+                reader.onload = e => {
                     try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, {type: 'array'});
-                        const firstSheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[firstSheetName];
-                        const json = XLSX.utils.sheet_to_json(worksheet, {defval: ""});
-                        resolve(json);
-                    } catch(err) {
-                        reject(err);
-                    }
+                        const data     = new Uint8Array(e.target.result);
+                        const wb       = XLSX.read(data, { type: 'array' });
+                        const ws       = wb.Sheets[wb.SheetNames[0]];
+                        resolve(XLSX.utils.sheet_to_json(ws, { defval: '' }));
+                    } catch (err) { reject(err); }
                 };
                 reader.onerror = reject;
                 reader.readAsArrayBuffer(file);
